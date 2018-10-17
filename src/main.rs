@@ -25,6 +25,7 @@ fn main() -> ! {
 
     let clocks = rcc.cfgr.freeze(&mut flash.acr);
 
+    let mut led = gpioa.pa6.into_push_pull_output(&mut gpioa.crl);
     let tx = gpioa.pa2.into_alternate_push_pull(&mut gpioa.crl);
     let rx = gpioa.pa3;
 
@@ -48,11 +49,18 @@ fn main() -> ! {
         &mut rcc.apb1,
     );
     let (mut tx3, mut rx3) = serial2.split();
-    block!(tx.write(65)).unwrap();
-    block!(tx3.write(66)).unwrap();
+    led.set_high();
+    for b in b"Relaying Test\n" {
+        block!(tx3.write(*b)).unwrap();
+    }
+    led.set_low();
     loop {
         if let Ok(b) = rx.read() {
+            led.set_high();
             block!(tx3.write(b)).unwrap();
+        }
+        else {
+            led.set_low();
         }
     }
 }
