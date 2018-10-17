@@ -1,0 +1,10 @@
+[package]
+name = "gps-to-irc"
+version = "0.1.0"
+authors = ["eta <hi@theta.eu.org>"]
+
+[dependencies]
+stm32f103xx-hal = { git = "https://github.com/japaric/stm32f103xx-hal", branch = "master" }
+cortex-m = "0.5"
+cortex-m-rt = "0.6"
+panic-semihosting = "0.5"
