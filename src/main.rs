@@ -37,10 +37,22 @@ fn main() -> ! {
         &mut rcc.apb1
     );
     let (mut tx, mut rx) = serial1.split();
+    let tx3 = gpiob.pb10.into_alternate_push_pull(&mut gpiob.crh);
+    let rx3 = gpiob.pb11;
+    let serial2 = Serial::usart3(
+        dp.USART3,
+        (tx3, rx3),
+        &mut afio.mapr,
+        9_600.bps(),
+        clocks,
+        &mut rcc.apb1,
+    );
+    let (mut tx3, mut rx3) = serial2.split();
     block!(tx.write(65)).unwrap();
+    block!(tx3.write(66)).unwrap();
     loop {
         if let Ok(b) = rx.read() {
-            block!(tx.write(b)).unwrap();
+            block!(tx3.write(b)).unwrap();
         }
     }
 }
