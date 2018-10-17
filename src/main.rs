@@ -25,35 +25,22 @@ fn main() -> ! {
 
     let clocks = rcc.cfgr.freeze(&mut flash.acr);
 
-    let tx1 = gpiob.pb6.into_alternate_push_pull(&mut gpiob.crl);
-    let rx1 = gpiob.pb7;
+    let tx = gpioa.pa2.into_alternate_push_pull(&mut gpioa.crl);
+    let rx = gpioa.pa3;
 
-    let serial1 = Serial::usart1(
-        dp.USART1,
-        (tx1, rx1),
-        &mut afio.mapr,
-        9_600.bps(),
-        clocks,
-        &mut rcc.apb2
-    );
-    let (mut tx1, mut rx1) = serial1.split();
-
-    let tx2 = gpioa.pa2.into_alternate_push_pull(&mut gpioa.crl);
-    let rx2 = gpioa.pa3;
-
-    let serial2 = Serial::usart2(
+    let serial1 = Serial::usart2(
         dp.USART2,
-        (tx2, rx2),
+        (tx, rx),
         &mut afio.mapr,
         9_600.bps(),
         clocks,
         &mut rcc.apb1
     );
-    let (mut tx2, mut rx2) = serial2.split();
-
+    let (mut tx, mut rx) = serial1.split();
+    block!(tx.write(65)).unwrap();
     loop {
-        if let Ok(b) = rx1.read() {
-            block!(tx2.write(b)).ok();
+        if let Ok(b) = rx.read() {
+            block!(tx.write(b)).unwrap();
         }
     }
 }
